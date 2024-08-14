@@ -1,30 +1,36 @@
-// Replace checkForName with a function that checks the URL
-import { checkForName } from './nameChecker'
+import { analyzeURL } from "./analyzeURL";
+import { displayError } from "./displayError";
+import { updateUI } from "./updateUI";
+import { isValidUrl } from "./isValidURL";
 
-// If working on Udacity workspace, update this with the Server API URL e.g. `https://wfkdhyvtzx.prod.udacity-student-workspaces.com/api`
-// const serverURL = 'https://wfkdhyvtzx.prod.udacity-student-workspaces.com/api'
-const serverURL = 'https://localhost:8000/api'
-
-const form = document.getElementById('urlForm');
-form.addEventListener('submit', handleSubmit);
-
-function handleSubmit(event) {
-    event.preventDefault();
-
-    // Get the URL from the input field
-    const formText = document.getElementById('name').value;
-
-    // This is an example code that checks the submitted name. You may remove it from your code
-    checkForName(formText);
-    
-    // Check if the URL is valid
- 
-        // If the URL is valid, send it to the server using the serverURL constant above
-      
+function initializeForm() {
+  const form = document.getElementById('urlForm');
+  if (form) {
+    form.addEventListener('submit', handleSubmit);
+  }
 }
 
-// Function to send data to the server
+async function handleSubmit(event) {
+    event.preventDefault();
 
-// Export the handleSubmit function
-export { handleSubmit };
+    const formText = document.getElementById('name').value;
+
+    if (!isValidUrl(formText)) {
+      return displayError("Invalid Link Provided");
+    }
+  
+    try {
+      const data = await analyzeURL(formText);
+  
+      if (data.status.code === '0') {
+        updateUI(data);
+      } else {
+        displayError(data.status.msg);
+      }
+    } catch (error) {
+      displayError("An unexpected error occurred");
+    }
+}
+
+export { handleSubmit, initializeForm };
 
